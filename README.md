@@ -4,69 +4,72 @@ At its core, IMu provides a set of Application Programming Interfaces (APIs).
 
 # Contents
 
-* [Using The IMu API](#1\)-using-the-imu-API)
-    * [Test Program](#1.1\)-test-program)
-    * [Exceptions](#1.2\)-exceptions)
-* [Connecting to an IMu server](#2\)-connecting-to-an-imu-server)
-    * [Handlers](#2.1\)-handlers)
-* [Accessing an EMu Module](#3\)-accessing-an-emu-module)
-    * [Searching a Module](#3.1\)-searching-a-module)
-        * [The findKey Method](#3.1.1\)-the-findkey-method)
-        * [The findKeys Method](#3.1.2\)-the-findkeys-method)
-        * [The findTerms Method](#3.1.3\)-the-findterms-method)
-        * [The findWhere Method](#3.1.4\)-the-findwhere-method)
-        * [Number of Matches](#3.1.5\)-number-of-matches)
-    * [Sorting](#3.2\)-sorting)
-        * [The sort Method](#3.2.1\)-the-sort-method)
-    * [Getting Information from Matching Records](#3.3\)-Getting-Information-from-Matching-Records)
-        * [The fetch Method](#3.3.1\)-The-fetch-Method)
-        * [Specifying Columns](#3.3.2\)-Specifying-Columns)
-        * [Example](#3.3.3\)-Example)
-    * [Multimedia](#3.4\)-Multimedia)
-        * [Multimedia Attachments](#3.4.1\)-Multimedia-Attachments)
-        * [Multimedia Files](#3.4.2\)-Multimedia-Files)
-        * [Filters](#3.4.3\)-filters)
-        * [Modifiers](#3.4.4\)-modifiers)
-* [Maintaining State](#4\)-Maintaining-State)
-    * [Example](#4.1\)-Example)
-* [Logging in to an IMu server](#5\)-Logging-in-to-an-IMu-server)
-    * [The login method](#5.1\)-The-login-method)
-    * [The logout method](#5.2\)-The-logout-method)
-* [Updating an EMu Module](#6\)-Updating-an-EMu-Module)
-    * [The insert Method](#6.1\)-The-insert-Method)
-    * [The update Method](#6.2\)-The-update-Method)
-    * [The remove Method](#6.3\)-The-remove-Method)
-* [Exceptions](#7\)-exceptions)
+* [Using The IMu API](#1-using-the-imu-api)
+    * [Test Program](#1-1-test-program)
+    * [Exceptions](#1-2-exceptions)
+* [Connecting to an IMu server](#2-connecting-to-an-imu-server)
+    * [Handlers](#2-1-handlers)
+* [Accessing an EMu Module](#3-accessing-an-emu-module)
+    * [Searching a Module](#3-1-searching-a-module)
+        * [The findKey Method](#3-1-1-the-findkey-method)
+        * [The findKeys Method](#3-1-2-the-findkeys-method)
+        * [The findTerms Method](#3-1-3-the-findterms-method)
+        * [The findWhere Method](#3-1-4-the-findwhere-method)
+        * [Number of Matches](#3-1-5-number-of-matches)
+    * [Sorting](#3-2-sorting)
+        * [The sort Method](#3-2-1-the-sort-method)
+    * [Getting Information from Matching Records](#3-3-getting-information-from-Mmtching-records)
+        * [The fetch Method](#3-3-1-the-fetch-method)
+        * [Specifying Columns](#3-3-2-specifying-columns)
+        * [Example](#3-3-3-example)
+    * [Multimedia](#3-4-multimedia)
+        * [Multimedia Attachments](#3-4-1-multimedia-attachments)
+        * [Multimedia Files](#3-4-2-multimedia-files)
+        * [Filters](#3-4-3-filters)
+        * [Modifiers](#3-4-4-modifiers)
+* [Maintaining State](#4-maintaining-state)
+    * [Example](#4-1-example)
+* [Logging in to an IMu server](#5-logging-in-to-an-imu-server)
+    * [The login method](#5-1-the-login-method)
+    * [The logout method](#5-2-the-logout-method)
+* [Updating an EMu Module](#6-updating-an-emu-module)
+    * [The insert Method](#6-1-the-insert-method)
+    * [The update Method](#6-2-the-update-method)
+    * [The remove Method](#6-3-the-remove-method)
+* [Exceptions](#7-exceptions)
 
-# 1) Using The IMu API
+<h1 id="1-using-the-imu-api">Using The IMu API</h1>
 
-A single jar file, imu-2.0.jar (or higher), is required to develop an IMu-based application. This jar contains all the classes that make up the IMu Java API. IMu API bundles are available from the IMu [releases](https://emu.kesoftware.com/support/downloads/imu/releases) page.
+A single jar file, imu-2.0.jar (or higher), is required to develop an IMu-based application. This jar contains all the classes that make up the IMu Java API. IMu API bundles are available from the IMu [releases](https://github.com/axiell/imu-api-java/releases) page.
 
 As with all jar files, the IMu jar must be included in the Java class path so that the java compiler and java runtime environment can find and use the IMu classes. Tools for Java development such as Eclipse and NetBeans allow you to add a reference to the IMu jar to your project.
 
 All classes in the IMu Java API are included in the one package, `com.kesoftware.imu`. As is usual in Java development you are able to refer to an IMu class in your code by:
 
-1. Using the fully qualified name:
+1. 
+    Using the fully qualified name:
 
     ```
     com.kesoftware.imu.Session session = new com.kesoftware.imu.Session();
     ```
 
-1. Importing the required class explicitly:
+1. 
+    Importing the required class explicitly:
 
     ```
     import com.kesoftware.imu.Session;
     Session session = new Session();
     ```
 
-1. Importing all the classes from the package implicitly:
+1. 
+    Importing all the classes from the package implicitly:
 
     ```
     import com.kesoftware.imu.*;
     Session session = new Session();
     ```
 
-## 1.1) Test Program
+<h2 id="1-1-test-program">Test Program</h2>
 
 Compiling and running this very simple IMu program is a good test of whether the development environment has been set up properly for using IMu:
 
@@ -85,7 +88,7 @@ class Hello
 
 The IMu library includes a class called `IMu`. This class includes the static `String` member `VERSION` which contains the version of this IMu release.
 
-## 1.2) Exceptions
+<h2 id="1-2-exceptions">Exceptions</h2>
 
 Many of the methods in the IMu library objects throw an exception when an error occurs. For this reason, code that uses IMu library objects should be surrounded with an `try/catch` block.
 
@@ -106,17 +109,18 @@ catch (Exception e)
 }
 ```
 
-Most IMu exceptions throw an `IMuException` object. The `IMuException` is a subclass of the standard Java Exception. In many cases your code can simply catch the standard Exception (as in this template). If more information is required about the exact `IMuException` thrown, see [Exceptions](#7\)-exceptions).
+Most IMu exceptions throw an `IMuException` object. The `IMuException` is a subclass of the standard Java Exception. In many cases your code can simply catch the standard Exception (as in this template). If more information is required about the exact `IMuException` thrown, see [Exceptions](#7-exceptions).
 
 > **NOTE:**
 >
 > Many of the examples that follow assume that code fragments have been surrounded with code structured in this way.
 
-# 2) Connecting to an IMu Server
+<h1 id="2-connecting-to-an-imu-server">Connecting to an IMu Server</h1>
 
 Most IMu based programs begin by creating a connection to an IMu server. Connections to a server are created and managed using IMu’s `Session` class. Before connecting, both the name of the host and the port number to connect on must be specified. This can be done in one of three ways.
 
-1. The simplest way to create a connection to an IMu server is to pass the host name and port number to the `Session` constructor and then call the `connect` method. For example:
+1. 
+    The simplest way to create a connection to an IMu server is to pass the host name and port number to the `Session` constructor and then call the `connect` method. For example:
 
     ```
     import com.kesoftware.imu.Session;
@@ -125,7 +129,8 @@ Most IMu based programs begin by creating a connection to an IMu server. Connect
     session.connect();
     ```
 
-1. Alternatively, pass no values to the constructor and then set the `host` and `port` properties (using the `setHost` and `setPort` methods) before calling `connect`:
+1. 
+    Alternatively, pass no values to the constructor and then set the `host` and `port` properties (using the `setHost` and `setPort` methods) before calling `connect`:
 
     ```
     import com.kesoftware.imu.Session;
@@ -136,7 +141,8 @@ Most IMu based programs begin by creating a connection to an IMu server. Connect
     session.connect();
     ```
 
-1. If either the host or port is not set, the `Session` class default value will be used. These defaults can be overridden by setting the (static) class properties `defaultHost` and `defaultPort`:
+1. 
+    If either the host or port is not set, the `Session` class default value will be used. These defaults can be overridden by setting the (static) class properties `defaultHost` and `defaultPort`:
 
     ```
     import com.kesoftware.imu.Session;
@@ -147,9 +153,9 @@ Most IMu based programs begin by creating a connection to an IMu server. Connect
     session.connect();
     ```
 
-    This technique is useful when planning to create several connections to the same server or when wanting to get a [Handler](#2.1\)-handlers) object to create the connection automatically.
+    This technique is useful when planning to create several connections to the same server or when wanting to get a [Handler](#2-1-handlers) object to create the connection automatically.
 
-## 2.1) Handlers
+<h2 id="2-1-handlers">Handlers</h2>
 
 Once a connection to an IMu server has been established, it is possible to create handler objects to submit requests to the server and receive responses.
 
@@ -165,11 +171,11 @@ All handlers are subclasses of IMu’s `Handler` class.
 
 In this document we examine the most frequently used handler, `Module`, which allows you to find and retrieve records from a single EMu module.
 
-# 3) Accessing an EMu Module
+<h1 id="3-accessing-an-emu-module">Accessing an EMu Module</h1>
 
 The IMu API provides facilities to search, sort and retrieve information from records in any EMu module. This section contains the reference material for these facilities.
 
-## 3.1) Searching a Module
+<h2 id="3-1-searching-a-module">Searching a Module</h2>
 
 A program accesses an EMu module (or table, the terms are used interchangeably) using the `Module` class. The name of the table to be accessed is passed to the `Module` constructor. For example:
 
@@ -179,18 +185,18 @@ import com.kesoftware.imu.Module;
 Module parties = new Module("eparties", session);
 ```
 
-This code assumes that a `Session` object called *session* has already been created. If a `Session` object is not passed to the `Module` constructor, a session will be created automatically using the `defaultHost` and `defaultPort` class properties. See [Connecting to an IMu server](#2\)-connecting-to-an-imu-server) for details.
+This code assumes that a `Session` object called *session* has already been created. If a `Session` object is not passed to the `Module` constructor, a session will be created automatically using the `defaultHost` and `defaultPort` class properties. See [Connecting to an IMu server](#2-connecting-to-an-imu-server) for details.
 
 Once a `Module` object has been created, it can be used to search the specified module and retrieve records.
 
 Any one of the following methods can be used to search for records within a module:
 
-* [findKey](#3.1.1\)-the-findkey-method)
-* [findKeys](#3.1.2\)-the-findkeys-method)
-* [findTerms](#3.1.3\)-the-findterms-method)
-* [findWhere](#3.1.4\)-the-findwhere-method)
+* [findKey](#3-1-1-the-findkey-method)
+* [findKeys](#3-1-2-the-findkeys-method)
+* [findTerms](#3-1-3-the-findterms-method)
+* [findWhere](#3-1-4-the-findwhere-method)
 
-### 3.1.1) The findKey Method
+<h3 id="3-1-1-the-findkey-method">The FindKey Method</h3>
 
 The `findKey` method searches for a single record by its key. The key is a passed as a `long`.
 
@@ -205,7 +211,7 @@ long hits = parties.findKey(42);
 
 The method returns the number of matches found, which is either 1 if the record exists or 0 if it does not.
 
-### 3.1.2) The findKeys Method {#custom-id}
+<h3 id="3-1-2-the-findkeys-method">The FindKeys Method</h3>
 
 The `findKeys` method searches for a set of key values. The keys are passed as a `long[]`:
 
@@ -228,7 +234,7 @@ long hits = parties.findKeys(keys);
 
 The method returns the number of records found.
 
-### 3.1.3) The findTerms Method
+<h3 id="3-1-3-the-findterms-method">The FindTerms Method</h3>
 
 The `findTerms` method is the most flexible and powerful way to search for records within a module. It can be used to run simple single term queries or complex multi-term searches.
 
@@ -390,7 +396,7 @@ There are several points to note:
     catalogue.addSearchAliases(aliases);
     ```
 
-### 3.1.4) The findWhere Method
+<h3 id="3-1-4-the-findwhere-method">The FindWhere Method</h3>
 
 With the `findWhere` method it is possible to submit a complete TexQL *where* clause:
 
@@ -426,19 +432,19 @@ Although this method provides complete control over exactly how a search is run,
     
     If your code builds a *where* clause from user-entered data so it can be run using `findWhere`, it is much more difficult, if not impossible, for the server to check and avoid SQL-injection. The responsibility for checking for SQL-injection becomes yours.
 
-### 3.1.5) Number of Matches
+<h3 id="3-1-5-number-of-matches">Number of Matches</h3>
 
 All of the *find* methods return the number of matches found by the search. For `findKey` and `findKeys` this number is always the exact number of matches found. The number returned by `findTerms` and `findWhere` is best thought of as an estimate.
 
 This estimate is almost always correct but because of the nature of the indexing used by the server’s data engine (Texpress) the number can sometimes be an over-estimate of the real number of matches. This is similar to the estimated number of hits returned by a Google search.
 
-## 3.2) Sorting
+<h2 id="3-2-sorting">Sorting</h2>
 
-### 3.2.1) The sort Method
+<h3 id="3-2-1-the-sort-method">The sort Method</h3>
 
 The `Module` class `sort` method is used to order a set of matching records once the search of a module has been run.
 
-#### Arguments
+<h4 id="3-2-1-1-arguments">Arguments</h4>
 
 This ``sort`` method takes two arguments:
 
@@ -542,7 +548,7 @@ This ``sort`` method takes two arguments:
 
     * **report**
 
-        A summary of the sort is generated. The summary report is a hierarchically structured object that summarises the number of unique values contained in the sort columns. See [Return Value](#3.2.2\)-return-value) and [Example](#3.2.3\)-example) for a description and illustration of the returned structure.
+        A summary of the sort is generated. The summary report is a hierarchically structured object that summarises the number of unique values contained in the sort columns. See [Return Value](#3-2-2-return-value) and [Example](#3.2.3\)-example) for a description and illustration of the returned structure.
 
     * **table-as-text**
 
@@ -602,7 +608,7 @@ For example:
     parties.sort(sort, flags);
     ```
 
-### 3.2.2) Return Value
+<h4 id="3-2-1-2-return-value">Return Value</h4>
 
 The `sort` method returns `null` unless the *report* flag is used.
 
@@ -637,7 +643,7 @@ This `ModuleSortTerm` object contains three read-only properties which describe 
 
 This is illustrated in the following example.
 
-### 3.2.3) Example
+<h4 id="3-2-1-3-example">Example</h4>
 
 This example shows a three-level sort by title, last name (descending) and first name on a set of Parties records:
 
@@ -725,7 +731,7 @@ If another sort key was specified its terms would be nested under the tertiary k
 
 ## 3.3) Getting Information from Matching Records
 
-### 3.3.1) The fetch Method
+<h3 id="3-3-1-the-fetch-method">The fetch Method</h3>
 
 The `Module` class [fetch](TODO-link-to-reference) method is used to get information from the matching records once the search of a module has been run. The server maintains the set of matching records in a list and the `fetch` method can be used to retrieve any information from any contiguous block of records in the list.
 
@@ -767,7 +773,7 @@ The `fetch` method has four arguments:
 
     The *columns* argument is used to specify which columns should be included in the returned records. The argument can be either a `String`, a `String[]` or a `ArrayList<String>`. In its simplest form each string contains a single column name, or several column names separated by semi-colons or commas.
 
-    The value of the *columns* argument can be more than simple column names. See the section on [Specifying Columns](#3.3.2\)-Specifying-Columns) for details.
+    The value of the *columns* argument can be more than simple column names. See the section on [Specifying Columns](#3-3-2-specifying-columns) for details.
 
 There are a number of variations of the `fetch` method. See the [reference documentations](TODO-link-to-reference) for details of each one.
 
@@ -888,11 +894,11 @@ Rows:
   2. SMITH, Ian (100301)
 ```
 
-### 3.3.2) Specifying Columns
+<h3 id="3-3-2-specifying-columns">Specifying Columns</h3>
 
 This section specifies the values that can be included or used as the *columns* arguments to the `Module` class `fetch` method.
 
-#### Atomic Columns
+<h4 id="3-3-2-1-atomic-columns">Atomic Columns</h4>
 
 These are simple column names of the type already mentioned, for example:
 
@@ -917,7 +923,7 @@ for (int i = 0; i < rows.length; i++)
 }
 ```
 
-#### Nested Tabes
+<h4 id="3-3-2-2-nesting-tables">Nested Tabes</h4>
 
 Nested tables are columns that contain a list of values. They are specified similarly to atomic columns:
 
@@ -946,7 +952,7 @@ for (int i = 0; i < rows.length; i++)
 }
 ```
 
-#### Columns From Attached Records
+<h4 id="3-3-2-4-columns-from-reverse-attachments">Columns from Reverse Attachments</h4>
 
 An attachment is a link between a record in a module and a record in the same or another module. The columns from an attached record can be specified by first specifying the attachment column and then the column to retrieve from the attached record:
 
@@ -989,13 +995,15 @@ A reverse attachment allows you to specify columns from other records in the sam
 
 For example:
 
-1. Retrieve the *TitMainTitle* (Main Title) column for all Catalogue records that have the current Parties record attached to their *CreCreatorRef_tab* (Creator) column:
+1. 
+    Retrieve the *TitMainTitle* (Main Title) column for all Catalogue records that have the current Parties record attached to their *CreCreatorRef_tab* (Creator) column:
 
     ```
     <ecatalogue:CreCreatorRef_tab>.TitMainTitle
     ```
 
-1. Retrieve the *NarTitle* (Title) column for all Narratives records that have the current Narrative record attached to their *HieChildNarrativesRef_tab* (Child Narratives) column:
+1. 
+    Retrieve the *NarTitle* (Title) column for all Narratives records that have the current Narrative record attached to their *HieChildNarrativesRef_tab* (Child Narratives) column:
 
     ```
     <enarratives:HieChildNarrativesRef_tab>.NarTitle
@@ -1030,7 +1038,7 @@ for (int i = 0; i < rows.length; i++)
 }
 ```
 
-#### Grouped Nested Tables
+<h4 id="3-3-2-5-grouped-nested-tables">Grouped Nested Tables</h4>
 
 A set of nested table columns can be grouped by specifying them between square brackets.
 
@@ -1071,7 +1079,7 @@ for (int i = 0; i < rows.length; i++)
 }
 ```
 
-#### Virtual Columns
+<h4 id="3-3-2-6-virtual-columns">Virtual Columns</h4>
 
 Virtual columns are columns that do not actually exist in the EMu table being accessed. Instead, the IMu server interprets the request for the column and builds an appropriate response. Certain virtual columns can only be used in certains modules as follows:
 
@@ -1155,7 +1163,7 @@ Virtual columns are columns that do not actually exist in the EMu table being ac
 
     Returns information about all of the video multimedia attached to a record.
 
-See [Multimedia](#3.4\)-multimedia) for more information.
+See [Multimedia](#3-4-multimedia) for more information.
 
 **The following virtual columns can only be used in the Multimedia module:**
 
@@ -1194,7 +1202,7 @@ See [Multimedia](#3.4\)-multimedia) for more information.
 
     Returns information about the multimedia [thumbnail](GLOSSARY.md###-thumbnail).
 
-See [Multimedia](#3.4\)-multimedia) for more information.
+See [Multimedia](#3-4-multimedia) for more information.
 
 **The following virtual column can only be used in the Narratives module:**
 
@@ -1207,13 +1215,13 @@ See [Multimedia](#3.4\)-multimedia) for more information.
 
 * extUrlFull_tab
 
-#### Fetch Sets
+<h4 id="3-3-2-7-fetch-sets">Fetch Sets</h4>
 
 A fetch set allows you to pre-register a group of columns by a single name. That name can then be passed to the `fetch` method to retrieve the specified columns.
 
 Fetch sets are useful if the `fetch` method will be called several times with the same set of columns because:
 
-* The required columns do no have to be specified every time the `fetch` method is called. This is useful when [maintaining state](#4\)-Maintaining-State).
+* The required columns do no have to be specified every time the `fetch` method is called. This is useful when [maintaining state](#4-maintaining-state).
 
 * Every time the `fetch` method is called the IMu server must parse the supplied columns and check them against the EMu schema. For complex column sets, particularly those involving several references or reverse references, this can take time.
 
@@ -1284,7 +1292,7 @@ For example:
     >
     >The fetch set name must be the **only** value passed as the `fetch` method *columns* argument. This may be revised in a future version of the IMu API.
 
-#### Renaming columns
+<h4 id="3-3-2-8-renaming-columns">Renaming columns</h4>
 
 Columns can be renamed in the returned results by prefixing them with an alternative name:
 
@@ -1345,7 +1353,7 @@ String[] columns =
 parties.addFetchSet("person_details", columns);
 ```
 
-### 3.3.3) Example
+<h3 id="3-3-3-example">Example</h3>
 
 In this example we build a simple [JSP](http://en.wikipedia.org/wiki/JavaServer_Pages) web page to search the Parties module by last name and display the full set of results.
 
@@ -1423,14 +1431,14 @@ In this example the *name* parameter entered via the HTML search page is submitt
 >
 > To deploy and run JSP, a compatible web server with a servlet container, such as Apache Tomcat or Jetty, is required. The `request` object used to retrieve the *name* parameter is supplied by the servlet container.
 
-## 3.4) Multimedia
+<h2 id="3-4-multimedia">Multimedia</h2>
 
 The IMu API provides a number of special mechanisms to handle access to the multimedia stored in the EMu <abbr title="Database management system">DBMS</abbr>. These machanisms fall into three rough categories:
 
 1. 
-    Mechanisms to select Multimedia module records that are attached to another module. This is covered in the [Multimedia Attachments](#3.4.1\)-multimedia-attachments) section.
+    Mechanisms to select Multimedia module records that are attached to another module. This is covered in the [Multimedia Attachments](#3-4-1-multimedia-attachments) section.
 1. 
-    Mechanisms to select multimedia files from a Multimedia module record. This is covered in the [Multimedia Files](#3.4.2\)-multimedia-files) and [Filters](####-3.4.3\)-filters) sections.
+    Mechanisms to select multimedia files from a Multimedia module record. This is covered in the [Multimedia Files](#3-4-2-multimedia-files) and [Filters](#3-4-3-filters) sections.
 1. 
     Mechanisms to apply modifications to multimedia files. This is covered in the [Modifiers](####-3.4.4\)-modifiers) section.
 
@@ -1440,9 +1448,9 @@ It is important to note that a single record in the EMu DBMS can have multiple M
 * Select a specific multimedia file from the selected Multimedia record.
 * Apply a modification to the selected multimedia file.
 
-### 3.4.1) Multimedia Attachments
+<h3 id="3-4-1-multimedia-attachments">Multimedia Attachments</h3>
 
-Information about the multimedia attached to an EMu record from any module (**except** the Multimedia module itself) can be retrieved using the `Module` class `fetch` method by specifying one of the following [virtual columns](#virtual-columns).
+Information about the multimedia attached to an EMu record from any module (**except** the Multimedia module itself) can be retrieved using the `Module` class `fetch` method by specifying one of the following [virtual columns](#3-3-2-6-virtual-columns).
 
 The following virtual columns return information about a single multimedia attachment of the current record. The information is returned as a associative array:
 
@@ -1459,7 +1467,7 @@ The following virtual columns return information about a set of multimedia attac
 * multimedia
 * videos
 
-All of these virtual columns return the [irn](GLOSSARY.md###-IRN), [type](GLOSSARY.md###-MIME-type) and [format](GLOSSARY.md###-MIME-format) of the Multimedia record attached to the current record. They also act as reference columns to the Multimedia module. This means that other columns from the Multimedia module (including [virtual columns](#virtual-columns)) can also be requested from the corresponding Multimedia record, for example:
+All of these virtual columns return the [irn](GLOSSARY.md###-IRN), [type](GLOSSARY.md###-MIME-type) and [format](GLOSSARY.md###-MIME-format) of the Multimedia record attached to the current record. They also act as reference columns to the Multimedia module. This means that other columns from the Multimedia module (including [virtual columns](#3-3-2-6-virtual-columns)) can also be requested from the corresponding Multimedia record, for example:
 
 1. 
     Include the title for all attached multimedia:
@@ -1496,7 +1504,7 @@ All of these virtual columns return the [irn](GLOSSARY.md###-IRN), [type](GLOSSA
     images.(master,title=MulTitle,description=MulDescription)
     ```
 
-#### Example
+<h4 id="3-4-1-1-example">Example</h4>
 
 This example shows the retrieval of the base information and the title for all multimedia images attached to a parties record:
 
@@ -1531,9 +1539,9 @@ irn 100101: Luciano Pavarotti with Natalie Cole - image/gif
 irn 100102: Luciano Pavarotti with the Spice Girls - image/gif
 ```
 
-### 3.4.2) Multimedia Files
+<h3 id="3-4-2-multimedia-files">Multimedia Files</h3>
 
-Similarly, information about the multimedia files associated with a Multimedia module record can be retrieved using the `Module` class `fetch` method by specifying one of the following [virtual columns](#virtual-columns).
+Similarly, information about the multimedia files associated with a Multimedia module record can be retrieved using the `Module` class `fetch` method by specifying one of the following [virtual columns](#3-3-2-6-virtual-columns).
 
 The following virtual columns return information about a single multimedia file from the current Multimedia record. The information is returned as a associative array.
 
@@ -1721,7 +1729,7 @@ The *resource* and *resources* virtual columns both return the same type of info
 
     The width of the image in pixels.
 
-#### Example
+<h4 id="3-4-2-1-example">Example</h4>
 
 This example shows the retrieval of the multimedia title and resource information about all multimedia files for all multimedia images attached to a parties record:
 
@@ -1818,7 +1826,7 @@ foreach ($result->rows as $row)
 
 This copies the multimedia file from the IMu server to a local file with the same name, in this case *signature.jpg*
 
-#### 3.4.3) Filters
+<h3 id="3-4-3-filters">Filters</h3>
 
 While the Multimedia module virtual columns provide a reasonably fine-grained method for selecting specific multimedia files associated with a multimedia record, in some circumstances it is useful to have even more control over the selection of multimedia files, particularly when specifying the *resolutions*, *resources* or *supplementary* virtual columns.
 
@@ -1837,7 +1845,7 @@ column(name operator value, name operator value);
 *
     name
 
-    The filter name specifies the characteristic of the multimedia file to filter on. Unless noted otherwise the meaning of the filter names is as specified in [Multimedia Files](#3.4.2\)-multimedia-files) section.
+    The filter name specifies the characteristic of the multimedia file to filter on. Unless noted otherwise the meaning of the filter names is as specified in [Multimedia Files](#3-4-2-multimedia-files) section.
 
     The following filter names can be used to filter any multimedia file:
 
@@ -1957,7 +1965,7 @@ For example:
     resources(width @ 600, height @ 600)
     ```
 
-#### Example
+<h4 id="3-4-3-1-example">Example</h4>
 
 This example shows the retrieval of the multimedia title and resource information about the single multimedia file with a width closest to 300 for all multimedia images attached to a parties record:
 
@@ -2019,7 +2027,7 @@ irn 100102: Luciano Pavarotti with the Spice Girls - image/gif
   PavarottiWithSpiceGirls.300x300.jpg: image/jpeg - 245x300 - 65370 bytes
 ```
 
-#### 3.4.4) Modifiers
+<h3 id="3-4-4-modifiers">Modifiers</h3>
 
 While the IMu API provides a number of ways to select particular multimedia files from a Multimedia record sometimes none of the available files fulfill the required characteristics. Sometimes it is necessary to modify an existing multimedia file to achieve the desired result.
 
@@ -2059,7 +2067,7 @@ The supported values for name are:
 
     Specifies that the multimedia file should be converted to the specified [format](GLOSSARY.md###-MIME-format). If the multimedia is not already in the required format it is reformatted on-the-fly.
 
-    The IMu server uses ImageMagick to process the image and the range of supported formats is very large. The complete list is available from: http://www.imagemagick.org/script/formats.phpicon-external-link. Any of the supported formats can be used as the value part of this modifier.
+    The IMu server uses ImageMagick to process the image and the range of supported formats is very large. The complete list is available from: http://www.imagemagick.org/script/formats.php. Any of the supported formats can be used as the value part of this modifier.
 
 * 
     resource
@@ -2103,37 +2111,43 @@ The supported values for name are:
 
 For example:
 
-1. Specify a Base64 encoding modifier:
+1. 
+    Specify a Base64 encoding modifier:
 
 ```
 resource{encoding:base64}
 ```
 
-1. Include a CRC32 checksum in the response:
+1. 
+    Include a CRC32 checksum in the response:
 
 ```
 resource{checksum:crc32}
 ```
 
-1. Reformat the multimedia image to the gif format:
+1. 
+    Reformat the multimedia image to the gif format:
 
 ```
 resource{format:gif}
 ```
 
-1. Resize the multimedia image to a height of 300 pixels:
+1. 
+    Resize the multimedia image to a height of 300 pixels:
 
 ```
 resource{height:300}
 ```
 
-1. Resize the multimedia image to a width of 300 pixels:
+1. 
+    Resize the multimedia image to a width of 300 pixels:
 
 ```
 resource{width:300}
 ```
 
-1. Resize the multimedia image to a height & width of 300 pixels and do not maintain aspect ratio:
+1. 
+    Resize the multimedia image to a height & width of 300 pixels and do not maintain aspect ratio:
 
 ```
 resource{height:300, width:300, aspectratio:no}
@@ -2222,9 +2236,9 @@ The bytes of the modified multimedia can be accessed in the usual way via the *r
 >
 > * Because the aspect ratio has been maintained the image does not have the exact height and width specified.
 
-# 4) Maintaining State
+<h1 id="4-maintaining-state">Maintaining State</h1>
 
-One of the biggest drawbacks of the [earlier example](#-3.3.3\)-example) is that it fetches the full set of results at one time, which is impractical for large result sets. It is more practical to display a full set of results across multiple pages and allow the user to move forward or backward through the pages.
+One of the biggest drawbacks of the [earlier example](#3-3-3-example) is that it fetches the full set of results at one time, which is impractical for large result sets. It is more practical to display a full set of results across multiple pages and allow the user to move forward or backward through the pages.
 
 This is simple in a conventional application where a connection to the separate server is maintained until the user terminates the application. In a web implementation however, this seemingly simple requirement involves a considerably higher level of complexity due to the stateless nature of web pages. One such complexity is that each time a new page of results is displayed, the initial search for the records must be re-executed. This is inconvenient for the web programmer and potentially slow for the user.
 
@@ -2292,10 +2306,9 @@ module.findKeys(keys);
 int reconnect = session.getPort();
 ```
 
-## 4.1) Example
+<h2 id="4-1-example">Example</h2>
 
-
-To illustrate we’ll modify the very simple results page of the [earlier section](#-3.3.3\)-example) to display the list of matching names in blocks of five records per page. We’ll provide simple *Next* and *Prev* links to allow the user to move through the results, and we will use some more `GET` parameters to pass the port we want to reconnect to, the identifier of the server-side object and the rownum of the first record to be displayed.
+To illustrate we’ll modify the very simple results page of the [earlier section](#3-3-3-example) to display the list of matching names in blocks of five records per page. We’ll provide simple *Next* and *Prev* links to allow the user to move through the results, and we will use some more `GET` parameters to pass the port we want to reconnect to, the identifier of the server-side object and the rownum of the first record to be displayed.
 
 First build the search page, which is a plain HTML form:
 
@@ -2304,7 +2317,7 @@ First build the search page, which is a plain HTML form:
   <title>Party Search</title>
 </head>
 <body>
-  <form action="example.php">
+  <form action="example.jsp">
     <p>Enter a last name to search for (e.g. S*):</p>
     <input type="text" name="name"/>
     <input type="submit" value="Search"/>
@@ -2488,17 +2501,17 @@ Next build the results page, which runs the search and displays the results. The
     %>
     ```
 
-# 5) Logging in to an IMu server
+<h1 id="5-logging-in-to-an-imu-server">Logging in to an IMu server</h1>
 
 When an IMu based program connects to an IMu server it is given a default level of access to EMu modules.
 
 It is possible for an IMu based program to override this level of access by explicitly logging in to the server as a registered user of EMu. This is done by using the `Session‘s` `login` method. Once the `login` method has been called successfully the session remains authenticated until the `logout` method is called.
 
-## 5.1) The login method
+<h2 id="5-1-the-login-method">The login method</h2>
 
 The login method is used to authenticate the program as a registered user of EMu. Once successfully authenticated access to EMu modules is at the level of the authenticated user rather than the default imuserver user.
 
-### 5.1.1) Arguments
+<h3 id="5-1-1-arguments">Arguments</h3>
 
 * 
     username
@@ -2519,7 +2532,7 @@ The login method is used to authenticate the program as a registered user of EMu
 
     A boolean value indicating whether the IMu server should create a separate process dedicated to handling this program’s requests. This argument is optional and if not supplied it defaults to `true`.
 
-## 5.2) The logout method
+<h2 id="5-2-the-logout-method">The logout method</h2>
 
 The logout method relinquishes access as the previously authenticated user.
 
@@ -2531,19 +2544,19 @@ The logout method relinquishes access as the previously authenticated user.
 >
 > Logging in causes the IMu server to start a new texserver process to handle all access to EMu module. This new texserver process will use a Texpress licence. The licence will not be freed until the logout method is called. See the server FAQ [How does IMu use Texpress licences?](FAQ.md##-How-does-imu-use-texpress-licences?) for more information.
 
-# 6) Updating an EMu Module
+<h1 id="6-updating-an-emu-module">Updating an EMu Module</h1>
 
 The `Module` class provides methods for inserting new records and for updating or removing existing records in any EMu module.
 
 > **NOTE:**
 >
-> By default these operations are restricted by the IMu server. Typically access to these operations is gained by [logging in to the IMu server](#5.1\)-The-login-method). See the [allow-updates](CONFIGURATION.md##allow-updates) entry of the server configuration for more information.
+> By default these operations are restricted by the IMu server. Typically access to these operations is gained by [logging in to the IMu server](#5-1-the-login-method). See the [allow-updates](CONFIGURATION.md##allow-updates) entry of the server configuration for more information.
 
-## 6.1) The insert Method
+<h2 id="6-1-the-insert-method">The insert Method</h2>
 
 The `insert` method is used to add a new record to the module.
 
-### 6.1.1) Arguments
+<h3 id="6-1-1-arguments">Arguments</h3>
 
 The method takes two arguments:
 
@@ -2557,17 +2570,17 @@ The method takes two arguments:
 * 
     columns
 
-    The *columns* argument is used to specify which columns should be returned once the record has been created. The value of the *column* is specified in exactly the same way as in the `fetch` method. See the section on [Specifying Columns](#3.3.2\)-Specifying-Columns) for details.
+    The *columns* argument is used to specify which columns should be returned once the record has been created. The value of the *column* is specified in exactly the same way as in the `fetch` method. See the section on [Specifying Columns](#3-3-2-specifying-columns) for details.
 
     > **NOTE:**
     >
     > It is very common to include `irn` as one of the columns to be returned. This gives a way of getting the key of the newly created record.
 
-### 6.1.2) Return Value
+<h3 id="6-1-2-return-value">Return Value</h3>
 
 The method returns a [Map](todo link to reference) object. The `Map` contains an entry for each column requested.
 
-### 6.1.3) Example
+<h3 id="6-1-3-example">Example</h3>
 
 ```
 Module parties = new Module("eparties", session);
@@ -2638,11 +2651,11 @@ If inserting of records is denied by the server this will produce output similar
 Error: ModuleUpdatesNotAllowed (authenticated,default)
 ```
 
-## 6.2) The update Method
+<h2 id="6-2-the-update-method">The update Method</h2>
 
 The `update` method is used to modify one or more existing records. This method operates very similarly to the `fetch` method. The only difference is a *values* argument which contains a set of values to be applied to each specified record.
 
-### 6.2.1) Arguments
+<h3 id="6-2-1-arguments">Arguments</h3>
 
 The method takes five arguments:
 
@@ -2650,28 +2663,28 @@ The method takes five arguments:
 * **offset**
 * **count**
 
-    These arguments are identical to those used by the [fetch](#3.3.1\)-The-fetch-Method) method. They define the starting position and size of the block of records to be updated.
+    These arguments are identical to those used by the [fetch](#3-3-1-the-fetch-method) method. They define the starting position and size of the block of records to be updated.
 
 * **values**
 
     The _values_ argument specifies the columns to be updated in the specified block of records. The _values_ argument must be a [Map](todo link to reference) object. The keys of the `Map` must be column names.
 
-    This is the same as the values argument for the [insert](#6.1\)-The-insert-Method) method.
+    This is the same as the values argument for the [insert](#6-1-the-insert-method) method.
 
 * **columns**
 
-    The *columns* argument is used to specify which columns should be returned once the record has been created. The value of the *column* is specified in exactly the same way as in the `fetch` method. See the section on [Specifying Columns](#3.3.2\)-Specifying-Columns) for details.
+    The *columns* argument is used to specify which columns should be returned once the record has been created. The value of the *column* is specified in exactly the same way as in the `fetch` method. See the section on [Specifying Columns](#3-3-2-specifying-columns) for details.
 
     This is the same as the *columns* argument for the `insert` method.
 
-### 6.2.2) Return Value
+<h3 id="6-2-2-return-value">Return Value</h3>
 
 The `update` method returns an `ModuleFetchResult` object (the same
-as the [fetch](#3.3.1\)-The-fetch-Method) method). It contains
+as the [fetch](#3-3-1-the-fetch-method) method). It contains
 the values for the selected block of records after the updates have been
 applied.
 
-### 6.2.3) Example
+<h3 id="6-2-3-example">Example</h3>
 
 ```
 /* Find all parties records that have a first name of "Chris" and a
@@ -2737,11 +2750,11 @@ Rows:
 	1. Froome, Christopher (435)
 ```
 
-## 6.3) The remove Method
+<h2 id="6-3-the-remove-method">The remove Method</h2>
 
 The `remove` method is used to remove one or more existing records.
 
-### 6.3.1) Arguments
+<h3 id="6-3-1-arguments">Arguments</h3>
 
 The method takes three arguments:
 
@@ -2751,11 +2764,11 @@ The method takes three arguments:
 
 These arguments define the starting position and size of the block of records to be removed. They are identical to those used by the [fetch](TODO-link-to-reference) and [update](TODO-link-to-reference) methods.
 
-### 6.3.2) Return Value
+<h3 id="6-3-2-return-value">Return Value</h3>
 
 The method returns a `long` that specifies the number of records that were removed.
 
-### 6.3.3) Example
+<h3 id="6-3-3-example">Example</h3>
 
 ```
 /* Find all parties records that have a first name of "Christopher" and
@@ -2792,9 +2805,9 @@ If removing records is allowed the example will produce output similar to the fo
 Removed 1 record(s)
 ```
 
-# 7) Exceptions
+<h1 id="7-exceptions">Exceptions</h1>
 
-When an error occurs, the IMu PHP API throws an exception. The exception is an [IMuException](TODO:-link-to-reference) object. This is a subclass of Java's standard `Exception` class.
+When an error occurs, the IMu Java API throws an exception. The exception is an [IMuException](TODO:-link-to-reference) object. This is a subclass of Java's standard `Exception` class.
 
 For simple error handling all that is usually required is to catch the exception and report the exception as a string:
 
