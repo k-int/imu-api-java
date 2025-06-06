@@ -52,53 +52,61 @@ import java.io.InputStream;
 
 class MixedInputStream extends FilterInputStream
 {
+	private Character bufferedSurrogate = null;
+	
 	public
 	MixedInputStream(InputStream in)
 	{
 		super(in);
 	}
 	
-	public int 
-	readChar() throws IOException, IMuException
-	{
-		int v = 0;
-		int n = 0;
-		int b = read();
-		if (b < 0)
-			return -1;
-		if ((b & 0x80) == 0)
-		{
-			v = b & 0x7F;
-			n = 0;
-		}
-		else if ((b & 0xE0) == 0xC0)
-		{
-			v = b & 0x1F;
-			n = 1;
-		}
-		else if ((b & 0xF0) == 0xE0)
-		{
-			v = b & 0x0F;
-			n = 2;
-		}
-		/* Multi-character input not supported */
-		else
-			throw new IMuException("InputCharacterStart", b);
-		
-		for (int i = 0; i < n; i++)
-		{
-			b = read();
-			if (b < 0)
-				throw new IMuException("InputCharacterTruncated");
-			if ((b & 0xC0) != 0x80)
-				throw new IMuException("InputCharacterCorrupted");
-			v <<= 6;
-			v |= b & 0x3F;
-		}
-		
-		char[] chars = Character.toChars(v);
-		if (chars.length != 1)
-			throw new IMuException("InputCharacterMulti");
-		return (int) chars[0];
-	}
+    public int readChar() throws IOException, IMuException {
+        // Return buffered second half of surrogate pair, if any
+        if (bufferedSurrogate != null) {
+            int result = bufferedSurrogate;
+            bufferedSurrogate = null;
+            return result;
+        }
+
+        int v = 0;
+        int n = 0;
+        int b = read();
+        if (b < 0)
+            return -1;
+
+        if ((b & 0x80) == 0) {               // 1-byte UTF-8
+            v = b & 0x7F;
+            n = 0;
+        } else if ((b & 0xE0) == 0xC0) {     // 2-byte UTF-8
+            v = b & 0x1F;
+            n = 1;
+        } else if ((b & 0xF0) == 0xE0) {     // 3-byte UTF-8
+            v = b & 0x0F;
+            n = 2;
+        } else if ((b & 0xF8) == 0xF0) {     // 4-byte UTF-8
+            v = b & 0x07;
+            n = 3;
+        } else {
+            throw new IMuException("InputCharacterStart", b); // Invalid UTF-8 start
+        }
+
+        for (int i = 0; i < n; i++) {
+            b = read();
+            if (b < 0)
+                throw new IMuException("InputCharacterTruncated");
+            if ((b & 0xC0) != 0x80)
+                throw new IMuException("InputCharacterCorrupted");
+            v = (v << 6) | (b & 0x3F);
+        }
+
+        char[] chars = Character.toChars(v);
+        if (chars.length == 1) {
+            return chars[0];
+        } else if (chars.length == 2) {
+            bufferedSurrogate = chars[1]; // Buffer low surrogate for next call
+            return chars[0];              // Return high surrogate now
+        } else {
+            throw new IMuException("InputCharacterMulti"); // Should never happen
+        }
+    }
 }

@@ -46,7 +46,13 @@
 */
 package com.kesoftware.imu;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.ref.Cleaner;
+import java.util.Objects;
+
 
 /*!
 ** This class is used to provide access to a temporary copy of a file
@@ -66,59 +72,52 @@ import java.io.*;
 **
 ** @since 1.0
 */
-class TempInputStream extends FileInputStream
-{
-	/* Constructors */
-	/*!
-	** Creates an input stream to access the file referred to by file.
-	** Note: this file is removed when the steam is closed or finalised.
-	**
-	** @param file
-	**   Temporary file to be accessed.
-	**
-	** @throws FileNotFoundException.
-	**   If the file does not exist.
-	*/
-	public
-	TempInputStream(File file) throws FileNotFoundException
-	{
-		super(file);
-		_file = file;
-	}
-	
-	/* Methods */
-	/*!
-	** Closes the input stream.
-	**
-	** The file associated with the stream is removed.
-	**
-	** @throws IOException
-	**   If the stream access failed.
-	*/
-	public void
-	close() throws IOException
-	{
-		super.close();
-		_file.delete();
-		_file = null;
-	}
-	
-	/*!
-	** Overrides the base class's **finalize( )** method.
-	**
-	** If close has not been called previously, the stream is closed and the 
-	** file is removed.
-	**
-	** @throws IOException
-	**   If the stream access failed.
-	*/
-	protected void
-	finalize() throws IOException
-	{
-		super.finalize();
-		if (_file != null)
-			_file.delete();
-	}
-	
-	private File _file;  
+public class TempInputStream extends FileInputStream {
+
+    private static final Cleaner cleaner = Cleaner.create();
+
+    private final File file;
+    private final Cleaner.Cleanable cleanable;
+
+    /**
+     * Creates an input stream for the specified temporary file.
+     * The file will be deleted when the stream is closed or finalized.
+     *
+     * @param file the temporary file to access
+     * @throws FileNotFoundException if the file doesn't exist
+     */
+    public TempInputStream(File file) throws FileNotFoundException {
+        super(Objects.requireNonNull(file));
+        this.file = file;
+        this.cleanable = cleaner.register(this, new FileCleanup(file));
+    }
+
+    /**
+     * Closes the stream and deletes the file.
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    public void close() throws IOException {
+        super.close();
+        cleanable.clean(); // Triggers cleanup immediately
+    }
+
+    /**
+     * Runnable class used by the Cleaner to delete the file.
+     */
+    private static class FileCleanup implements Runnable {
+        private final File file;
+
+        FileCleanup(File file) {
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            if (file != null && file.exists()) {
+                file.delete();
+            }
+        }
+    }
 }
