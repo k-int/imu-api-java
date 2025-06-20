@@ -46,108 +46,70 @@
 */
 package com.kesoftware.imu;
 
-/*!
-** Class for IMu-specific exceptions.
-**
-** @extends java.lang.Exception
-**
-** @usage
-**   com.kesoftware.imu.IMuException
-** @end
-**
-** @since 1.0
-*/
 @SuppressWarnings("serial")
 public class IMuException extends Exception
 {
-	/* Constructors */
-	/*!
-	** Creates an IMu specific exception.
-	**
-	** @param id
-	**   A `string` exception code.
-	**
-	** @param args
-	**   Any additional arguments used to provide further information
-	**   about the exception.
-	*/
+	private final String _id;
+	private Object[] _args;
+
 	public IMuException(String id, Object... args)
 	{
-		super();
+		super(buildMessage(id, args));
 		_id = id;
 		_args = args;
 		Trace.write(2, "exception: %s", toString());
 	}
-	
-	/*!
-	** Creates an IMu-specific exception.
-	**
-	** @param id
-	**   A `string` exception code.
-	*/
-	public IMuException(String id)
+
+	public IMuException(String id, Throwable cause)
 	{
-		super();
+		super(buildMessage(id, cause != null ? cause.getMessage() : null), cause);
 		_id = id;
-		_args = null;
+		_args = (cause != null) ? new Object[] { cause.getMessage() } : null;
 		Trace.write(2, "exception: %s", toString());
 	}
-	
-	/* Properties */
-	/*!
-	** @property args
-	**   The set of arguments associated with the exception.
-	*/
-	public Object[]
-	getArgs()
-	{
+
+	public Object[] getArgs() {
 		return _args;
 	}
-	
-	public void
-	setArgs(Object[] args)
-	{
+
+	public void setArgs(Object[] args) {
 		_args = args;
 	}
 
-	/*!
-	** @property id
-	**   The unique identifier assignend to the server-side object once it has 
-	**   been created.
-	*/
-	public String
-	getID()
-	{
+	public String getID() {
 		return _id;
 	}
-	
-	/* Methods */
-	/*!
-	** Overrides the standard `Object` **toString( )** method.
-	**
-	** @returns 
-	**   A `string` description of the exception.
-	*/
-	@Override 
-	public String
-	toString()
+
+	@Override
+	public String toString()
 	{
-        String str = _id;
-        if (_args != null && _args.length > 0)
-        {
-            str += " (";
-            for (int i = 0; i < _args.length; i++)
-            {
-                if (i > 0)
-                    str += ',';
-                str += _args[i].toString();
-            }
-            str += ')';
-        }
-        return str;
-	
+		String str = _id;
+		if (_args != null && _args.length > 0)
+		{
+			str += " (";
+			for (int i = 0; i < _args.length; i++)
+			{
+				if (i > 0) str += ", ";
+				str += String.valueOf(_args[i]);
+			}
+			str += ")";
+		}
+		return str;
 	}
-	
-	private String _id;
-	private Object[] _args;
+
+	private static String buildMessage(String id, Object... args)
+	{
+		StringBuilder sb = new StringBuilder(id);
+		if (args != null && args.length > 0)
+		{
+			sb.append(" (");
+			for (int i = 0; i < args.length; i++)
+			{
+				if (i > 0) sb.append(", ");
+				sb.append(String.valueOf(args[i]));
+			}
+			sb.append(")");
+		}
+		return sb.toString();
+	}
 }

@@ -84,7 +84,7 @@ class Stream
 		}
 		catch (Exception e)
 		{
-			throw new IMuException("StreamIOSetup", e.getMessage());
+			throw new IMuException("StreamIOSetup", e);
 		}
 		
 		_next = ' ';
@@ -110,7 +110,7 @@ class Stream
 		}
 		catch (Exception e)
 		{
-			throw new IMuException("StreamGet", e.getMessage());
+			throw new IMuException("StreamGet", e);
 		}
 		return what;
 	}
@@ -130,7 +130,7 @@ class Stream
 		}
 		catch (Exception e)
 		{
-			throw new IMuException("StreamPut", e.getMessage());
+			throw new IMuException("StreamPut", e);
 		}
 	}
 
