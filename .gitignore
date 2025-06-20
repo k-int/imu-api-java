@@ -1,0 +1,5 @@
+/target/
+/.classpath
+/.project
+/*/org.eclipse.core.resources.prefs
+/*/org.eclipse.jdt.core.prefs
