@@ -107,14 +107,9 @@ class Stream
         {
             case "end" -> null;
             case "string" -> _string;
-            case "number" -> {
-                // Fix: Use string-based detection like LegacyStream instead of floating-point comparison
-                if (_string.indexOf('.') >= 0 || _string.toLowerCase().indexOf('e') >= 0) {
-                    yield Double.parseDouble(_string);
-                } else {
-                    yield Long.parseLong(_string);
-                }
-            }
+            case "number" -> (_string.indexOf('.') >= 0 || _string.toLowerCase().indexOf('e') >= 0)
+	            ? Double.parseDouble(_string)
+	            : Long.parseLong(_string);
             case "true" -> true;
             case "false" -> false;
             case "null" -> null;
