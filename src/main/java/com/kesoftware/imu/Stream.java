@@ -107,9 +107,10 @@ class Stream
         {
             case "end" -> null;
             case "string" -> _string;
-            case "number" -> _string.indexOf('.') >= 0
-                ? Double.parseDouble(_string)
-                : Long.parseLong(_string);
+            case "number" -> {
+                double d = Double.parseDouble(_string);
+                yield (d == Math.rint(d)) ? (long) d : d;
+            }
             case "true" -> true;
             case "false" -> false;
             case "null" -> null;
