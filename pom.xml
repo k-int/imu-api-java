@@ -3,7 +3,7 @@
   <groupId>com.kesoftware.imu</groupId>
   <artifactId>imu</artifactId>
   <packaging>jar</packaging>
-  <version>2.3-SNAPSHOT</version>
+  <version>2.3</version>
   <name>imu</name>
   <url>http://kesoftware.com/imu/imu-releases.html</url>
 
@@ -67,6 +67,6 @@
   
   <scm>
       <connection>scm:git:https://github.com/k-int/imu-api-java</connection>
-      <tag>HEAD</tag>
+      <tag>imu-2.3</tag>
   </scm>
 </project>
