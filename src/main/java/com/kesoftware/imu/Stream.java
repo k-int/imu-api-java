@@ -108,8 +108,12 @@ class Stream
             case "end" -> null;
             case "string" -> _string;
             case "number" -> {
-                double d = Double.parseDouble(_string);
-                yield (d == Math.rint(d)) ? (long) d : d;
+                // Fix: Use string-based detection like LegacyStream instead of floating-point comparison
+                if (_string.indexOf('.') >= 0 || _string.toLowerCase().indexOf('e') >= 0) {
+                    yield Double.parseDouble(_string);
+                } else {
+                    yield Long.parseLong(_string);
+                }
             }
             case "true" -> true;
             case "false" -> false;
