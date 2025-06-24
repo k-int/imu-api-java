@@ -1,49 +1,3 @@
-/* KE Software Open Source Licence
-** 
-** Notice: Copyright (c) 2011-2013 KE SOFTWARE PTY LTD (ACN 006 213 298)
-** (the "Owner"). All rights reserved.
-** 
-** Licence: Permission is hereby granted, free of charge, to any person
-** obtaining a copy of this software and associated documentation files
-** (the "Software"), to deal with the Software without restriction,
-** including without limitation the rights to use, copy, modify, merge,
-** publish, distribute, sublicense, and/or sell copies of the Software,
-** and to permit persons to whom the Software is furnished to do so,
-** subject to the following conditions.
-** 
-** Conditions: The Software is licensed on condition that:
-** 
-** (1) Redistributions of source code must retain the above Notice,
-**     these Conditions and the following Limitations.
-** 
-** (2) Redistributions in binary form must reproduce the above Notice,
-**     these Conditions and the following Limitations in the
-**     documentation and/or other materials provided with the distribution.
-** 
-** (3) Neither the names of the Owner, nor the names of its contributors
-**     may be used to endorse or promote products derived from this
-**     Software without specific prior written permission.
-** 
-** Limitations: Any person exercising any of the permissions in the
-** relevant licence will be taken to have accepted the following as
-** legally binding terms severally with the Owner and any other
-** copyright owners (collectively "Participants"):
-** 
-** TO THE EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS",
-** WITHOUT ANY REPRESENTATION, WARRANTY OR CONDITION OF ANY KIND, EXPRESS
-** OR IMPLIED, INCLUDING (WITHOUT LIMITATION) AS TO MERCHANTABILITY,
-** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. TO THE EXTENT
-** PERMITTED BY LAW, IN NO EVENT SHALL ANY PARTICIPANT BE LIABLE FOR ANY
-** CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-** SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
-** 
-** WHERE BY LAW A LIABILITY (ON ANY BASIS) OF ANY PARTICIPANT IN RELATION
-** TO THE SOFTWARE CANNOT BE EXCLUDED, THEN TO THE EXTENT PERMITTED BY
-** LAW THAT LIABILITY IS LIMITED AT THE OPTION OF THE PARTICIPANT TO THE
-** REPLACEMENT, REPAIR OR RESUPPLY OF THE RELEVANT GOODS OR SERVICES
-** (INCLUDING BUT NOT LIMITED TO SOFTWARE) OR THE PAYMENT OF THE COST OF SAME.
-*/
 package com.kesoftware.imu;
 
 import java.io.*;
@@ -53,512 +7,495 @@ import java.util.ArrayList;
 
 class Stream
 {
-	/* Static Properties */
-	public static int
-	getBlockSize()
-	{
-		return _blockSize;
-	}
+    /* Static Properties */
+    public static int getBlockSize()
+    {
+        return _blockSize;
+    }
 
-	public static void
-	setBlockSize(int size)
-	{
-		_blockSize = size;
-	}
+    public static void setBlockSize(int size)
+    {
+        _blockSize = size;
+    }
 
-	/* Constructor */
-	public
-	Stream(Socket socket) throws IMuException
-	{
-		_socket = socket;
+    /* Constructor */
+    public Stream(Socket socket) throws IMuException
+    {
+        _socket = socket;
 
-		try
-		{
-			InputStream is = _socket.getInputStream();
-			BufferedInputStream bis = new BufferedInputStream(is);
-			_input = new MixedInputStream(bis);
+        try
+        {
+            InputStream is = _socket.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+            _input = new MixedInputStream(bis);
 
-			OutputStream os = _socket.getOutputStream();
-			BufferedOutputStream bos = new BufferedOutputStream(os);
-			_output = new MixedOutputStream(bos);
-		}
-		catch (Exception e)
-		{
-			throw new IMuException("StreamIOSetup", e);
-		}
-		
-		_next = ' ';
-		_token = null;
-		_string = null;
-		_file = null;
-	}
+            OutputStream os = _socket.getOutputStream();
+            BufferedOutputStream bos = new BufferedOutputStream(os);
+            _output = new MixedOutputStream(bos);
+        }
+        catch (Exception e)
+        {
+            throw new IMuException("StreamIOSetup", e);
+        }
 
-	/* Methods */
-	public Object
-	get() throws IMuException
-	{
-		Object what = null;
-		try
-		{
-			getNext();
-			getToken();
-			what = getValue();
-		}
-		catch (IMuException e)
-		{
-			throw e;
-		}
-		catch (Exception e)
-		{
-			throw new IMuException("StreamGet", e);
-		}
-		return what;
-	}
+        _next = ' ';
+        _token = null;
+        _string = null;
+        _file = null;
 
-	public void
-	put(Object what) throws IMuException
-	{
-		try
-		{
-			putValue(what, 0);
-			putLine();
-			_output.flush();
-		}
-		catch (IMuException e)
-		{
-			throw e;
-		}
-		catch (Exception e)
-		{
-			throw new IMuException("StreamPut", e);
-		}
-	}
+        // Reusable buffer for binary I/O
+        _buffer = new byte[_blockSize];
+    }
 
-	private static int _blockSize = 8192;
+    /* Methods */
+    public Object get() throws IMuException
+    {
+        Object what = null;
+        try
+        {
+            getNext();
+            getToken();
+            what = getValue();
+        }
+        catch (IMuException e)
+        {
+            throw e;
+        }
+        catch (Exception e)
+        {
+            throw new IMuException("StreamGet", e);
+        }
+        return what;
+    }
 
-	private Socket _socket;
-	
-	private MixedInputStream _input;
-	private MixedOutputStream _output;
-	
-	private char _next;
-	private String _token;
-	private String _string;
-	private InputStream _file;
+    public void put(Object what) throws IMuException
+    {
+        try
+        {
+            putValue(what, 0);
+            putLine();
+            _output.flush();
+        }
+        catch (IMuException e)
+        {
+            throw e;
+        }
+        catch (Exception e)
+        {
+            throw new IMuException("StreamPut", e);
+        }
+    }
 
-	private Object
-	getValue() throws Exception
-	{
-		if (_token.equals("end"))
-			return null;
-		if (_token.equals("string"))
-			return _string;
-		if (_token.equals("number"))
-		{
-			if (_string.indexOf('.') >= 0)
-				return Double.parseDouble(_string);
-			return Long.parseLong(_string);
-		}
-		if (_token.equals("{"))
-		{
-			Map map = new Map();
-			getToken();
-			while (! _token.equals("}"))
-			{
-				String name = "";
-				if (_token.equals("string"))
-					name = _string;
-				else if (_token.equals("identifier"))
-					// Extension - allow simple identifiers
-					name = _string;
-				else
-					throw new IMuException("StreamSyntaxName", _token);
+    private static int _blockSize = 8192;
 
-				getToken();
-				if (! _token.equals(":"))
-					throw new IMuException("StreamSyntaxColon", _token);
+    private final Socket _socket;
 
-				getToken();
-				map.put(name, getValue());
+    private final MixedInputStream _input;
+    private final MixedOutputStream _output;
 
-				getToken();
-				if (_token.equals(","))
-					getToken();
-			}
-			return map;
-		}
-		if (_token.equals("["))
-		{
-			ArrayList<Object> list = new ArrayList<Object>();
-			getToken();
-			while (! _token.equals("]"))
-			{
-				list.add(getValue());
+    private char _next;
+    private String _token;
+    private String _string;
+    private InputStream _file;
 
-				getToken();
-				if (_token.equals(","))
-					getToken();
-			}
-			return list.toArray();
-		}
-		if (_token.equals("true"))
-			return true;
-		if (_token.equals("false"))
-			return false;
-		if (_token.equals("null"))
-			return null;
-		if (_token.equals("binary"))
-			return _file;
-		
-		throw new IMuException("StreamSyntaxToken", _token);
-	}
+    // Reusable buffer for binary IO
+    private final byte[] _buffer;
 
-	private void
-	getToken() throws Exception
-	{
-		while (Character.isWhitespace(_next))
-			getNext();
-		_string = "";
-		_file = null;
-		if (_next == '"')
-		{
-			_token = "string";
-			getNext();
-			while (_next != '"')
-			{
-				if (_next == '\\')
-				{
-					getNext();
-					if (_next == 'b')
-						_next = '\b';
-					else if (_next == 'f')
-						_next = '\f';
-					else if (_next == 'n')
-						_next = '\n';
-					else if (_next == 'r')
-						_next = '\r';
-					else if (_next == 't')
-						_next = '\t';
-					else if (_next == 'u')
-					{
-						getNext();
-						String str = "";
-						for (int i = 0; i < 4; i++)
-						{
-							if (Character.isDigit(_next))
-								str += _next;
-							else if (Character.isLetter(_next))
-							{
-								char lower = Character.toLowerCase(_next);
-								if (lower > 'f')
-									break;
-								str += lower;
-							}
-							else
-								break;
-							getNext();
-						}
-						if (str.length() == 0)
-							throw new IMuException("StreamSyntaxUnicode");
-						int num = Integer.parseInt(str, 16);
-						char[] chars = Character.toChars(num);
-						_next = chars[0];
-					}
-				}
-				_string += _next;
-				getNext();
-			}
-			getNext();
-		}
-		else if (Character.isDigit(_next) || _next == '-')
-		{
-			_token = "number";
-			_string += _next;
-			getNext();
-			while (Character.isDigit(_next))
-			{
-				_string += _next;
-				getNext();
-			}
-			if (_next == '.')
-			{
-				_string += _next;
-				getNext();
-				while (Character.isDigit(_next))
-				{
-					_string += _next;
-					getNext();
-				}
-			}
-			if (_next == 'e' || _next == 'E')
-			{
-				if (!_string.endsWith(".") && !_string.contains("."))
-				{
-					_string += '.';
-				}
-				_string += 'e';
-				getNext();
-				if (_next == '+')
-				{
-					_string += '+';
-					getNext();
-				}
-				else if (_next == '-')
-				{
-					_string += '-';
-					getNext();
-				}
-				while (Character.isDigit(_next))
-				{
-					_string += _next;
-					getNext();
-				}
-			}
-		}
-		else if (Character.isLetter(_next) || _next == '_')
-		{
-			_token = "identifier";
-			while (Character.isLetterOrDigit(_next) || _next == '_')
-			{
-				_string += _next;
-				getNext();
-			}
-			String lower = _string.toLowerCase();
-			if (lower.equals("false"))
-				_token = "false";
-			else if (lower.equals("null"))
-				_token = "null";
-			else if (lower.equals("true"))
-				_token = "true";
-		}
-		else if (_next == '*')
-		{
-			// Extension - allow embedded binary data
-			_token = "binary";
-			getNext();
-			while (Character.isDigit(_next))
-			{
-				_string += _next;
-				getNext();
-			}
-			if (_string.length() == 0)
-				throw new IMuException("StreamSyntaxBinary");
-			long size = Long.parseLong(_string);
-			while (_next != '\n')
-				getNext();
+    private Object getValue() throws Exception
+    {
+        return switch (_token)
+        {
+            case "end" -> null;
+            case "string" -> _string;
+            case "number" -> _string.indexOf('.') >= 0
+                ? Double.parseDouble(_string)
+                : Long.parseLong(_string);
+            case "true" -> true;
+            case "false" -> false;
+            case "null" -> null;
+            case "binary" -> _file;
+            case "{" -> {
+            	Map map = new Map();
+                getToken();
+                while (!_token.equals("}"))
+                {
+                    String name;
+                    if (_token.equals("string") || _token.equals("identifier"))
+                    {
+                        name = _string;
+                    }
+                    else
+                    {
+                        throw new IMuException("StreamSyntaxName", _token);
+                    }
 
-			// Save data in a temporary file
-			TempFile temp = new TempFile();
-			OutputStream stream = temp.getOutputStream();
-			byte[] data = new byte[_blockSize];
-			long left = size;
-			while (left > 0)
-			{
-				int read = _blockSize;
-				if ((long) read > left)
-						read = (int) left;
-				int done = _input.read(data, 0, read);
-				if (done <= 0)
-					throw new IMuException("StreamEOF", "binary");
-				stream.write(data, 0, done);
-				left -= done;
-			}
-			_file = temp.getInputStream();
-			
-			getNext();
-		}
-		else
-		{
-			_token = "" + _next;
-			getNext();
-		}
-	}
+                    getToken();
+                    if (!_token.equals(":"))
+                        throw new IMuException("StreamSyntaxColon", _token);
 
-	private char
-	getNext() throws Exception
-	{
-		int c = _input.readChar();
-		if (c < 0)
-			throw new IMuException("StreamEOF", "character");
-		_next = (char) c;
-		return _next;
-	}
+                    getToken();
+                    map.put(name, getValue());
 
-	@SuppressWarnings("unchecked")
-	private void
-	putValue(Object what, int indent) throws Exception
-	{
-		if (what == null)
-			putData("null");
-		else if (what instanceof String)
-			putString((String) what);
-		else if (what instanceof Integer)
-			putData(((Integer) what).toString());
-		else if (what instanceof Long)
-			putData(((Long) what).toString());
-		else if (what instanceof Double)
-			putData(((Double) what).toString());
-		else if (what instanceof AbstractMap)
-			putObject((AbstractMap<Object,Object>) what, indent);
-		else if (what instanceof Object[])
-			putArray((Object[]) what, indent);
-		else if (what instanceof ArrayList)
-			putArray(((ArrayList<Object>) what).toArray(), indent);
-		else if (what instanceof Boolean)
-			putData(((Boolean) what) ? "true" : "false");
-		else if (what instanceof File)
-			putFile((File) what);
-		else if (what instanceof InputStream)
-			putStream((InputStream) what);
-		else
-			throw new IMuException("StreamType", what.getClass().getName());
-	}
+                    getToken();
+                    if (_token.equals(","))
+                        getToken();
+                }
+                yield map;
+            }
+            case "[" -> {
+                ArrayList<Object> list = new ArrayList<>();
+                getToken();
+                while (!_token.equals("]"))
+                {
+                    list.add(getValue());
+                    getToken();
+                    if (_token.equals(","))
+                        getToken();
+                }
+                yield list.toArray();
+            }
+            default -> throw new IMuException("StreamSyntaxToken", _token);
+        };
+    }
 
-	private void
-	putString(String what) throws Exception
-	{
-		putData('"');
-		char[] chars = what.toCharArray();
-		for (int i = 0; i < chars.length; i++)
-		{
-			if (chars[i] == '"' || chars[i] == '\\')
-				putData('\\');
-			putData(chars[i]);
-		}
-		putData('"');
-	}
+    private void getToken() throws Exception
+    {
+        while (Character.isWhitespace(_next))
+            getNext();
 
-	private void
-	putObject(AbstractMap<Object,Object> what, int indent) throws Exception
-	{
-		putData('{');
-		putLine();
-		Object[] keys = what.keySet().toArray();
-		int size = keys.length;
-		for (int i = 0; i < size; i++)
-		{
-			Object key = keys[i];
-			putIndent(indent + 1);
-			putString(key.toString());
-			putData(" : ");
-			putValue(what.get(key), indent + 1);
-			if (i < size - 1)
-				putData(',');
-			putLine();
-		}
-		putIndent(indent);
-		putData('}');
-	}
+        _string = null;
+        _file = null;
 
-	private void
-	putArray(Object[] what, int indent) throws Exception
-	{
-		putData('[');
-		putLine();
-		for (int i = 0; i < what.length; i++)
-		{
-			putIndent(indent + 1);
-			putValue(what[i], indent + 1);
-			if (i < what.length - 1)
-				putData(',');
-			putLine();
-		}
-		putIndent(indent);
-		putData(']');
-	}
+        if (_next == '"')
+        {
+            _token = "string";
+            StringBuilder sb = new StringBuilder();
+            getNext();
+            while (_next != '"')
+            {
+                if (_next == '\\')
+                {
+                    getNext();
+                    switch (_next)
+                    {
+                        case 'b' -> sb.append('\b');
+                        case 'f' -> sb.append('\f');
+                        case 'n' -> sb.append('\n');
+                        case 'r' -> sb.append('\r');
+                        case 't' -> sb.append('\t');
+                        case 'u' -> {
+                            getNext();
+                            StringBuilder hex = new StringBuilder();
+                            for (int i = 0; i < 4; i++)
+                            {
+                                if (Character.isDigit(_next) ||
+                                    (_next >= 'a' && _next <= 'f') ||
+                                    (_next >= 'A' && _next <= 'F'))
+                                {
+                                    hex.append(_next);
+                                    if (i < 3)
+                                        getNext();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            if (hex.length() == 0)
+                                throw new IMuException("StreamSyntaxUnicode");
+                            int codePoint = Integer.parseInt(hex.toString(), 16);
+                            sb.appendCodePoint(codePoint);
+                            continue; // skip getNext here as already advanced
+                        }
+                        default -> sb.append(_next);
+                    }
+                }
+                else
+                {
+                    sb.append(_next);
+                }
+                getNext();
+            }
+            _string = sb.toString();
+            getNext();
+        }
+        else if (Character.isDigit(_next) || _next == '-')
+        {
+            _token = "number";
+            StringBuilder sb = new StringBuilder();
+            sb.append(_next);
+            getNext();
+            while (Character.isDigit(_next))
+            {
+                sb.append(_next);
+                getNext();
+            }
+            if (_next == '.')
+            {
+                sb.append(_next);
+                getNext();
+                while (Character.isDigit(_next))
+                {
+                    sb.append(_next);
+                    getNext();
+                }
+            }
+            if (_next == 'e' || _next == 'E')
+            {
+                if (!sb.toString().endsWith(".") && !sb.toString().contains("."))
+                {
+                    sb.append('.');
+                }
+                sb.append('e');
+                getNext();
+                if (_next == '+')
+                {
+                    sb.append('+');
+                    getNext();
+                }
+                else if (_next == '-')
+                {
+                    sb.append('-');
+                    getNext();
+                }
+                while (Character.isDigit(_next))
+                {
+                    sb.append(_next);
+                    getNext();
+                }
+            }
+            _string = sb.toString();
+        }
+        else if (Character.isLetter(_next) || _next == '_')
+        {
+            _token = "identifier";
+            StringBuilder sb = new StringBuilder();
+            while (Character.isLetterOrDigit(_next) || _next == '_')
+            {
+                sb.append(_next);
+                getNext();
+            }
+            String lower = sb.toString().toLowerCase();
+            if (lower.equals("false"))
+                _token = "false";
+            else if (lower.equals("null"))
+                _token = "null";
+            else if (lower.equals("true"))
+                _token = "true";
+            else
+            {
+                _string = sb.toString();
+            }
+        }
+        else if (_next == '*')
+        {
+            _token = "binary";
+            StringBuilder sb = new StringBuilder();
+            getNext();
+            while (Character.isDigit(_next))
+            {
+                sb.append(_next);
+                getNext();
+            }
+            if (sb.length() == 0)
+                throw new IMuException("StreamSyntaxBinary");
 
-	private void
-	putFile(File what) throws Exception
-	{
-		long size = what.length();
-		InputStream is = new FileInputStream(what);
-		putBytes(size, is);
-		is.close();
-	}
+            long size = Long.parseLong(sb.toString());
+            while (_next != '\n')
+                getNext();
 
-	private void
-	putStream(InputStream what) throws Exception
-	{
-		/* Copy stream - to determine its size */
-		TempFile temp = new TempFile();
-		OutputStream os = temp.getOutputStream();
-		byte[] data = new byte[_blockSize];
-		for (;;)
-		{
-			int need = _blockSize;
-			int done = what.read(data, 0, need);
-			if (done <= 0)
-				break;
-			os.write(data, 0, done);
-		}
-		os.flush();
+            TempFile temp = new TempFile();
+            try (OutputStream stream = temp.getOutputStream())
+            {
+                long left = size;
+                while (left > 0)
+                {
+                    int read = _buffer.length;
+                    if ((long) read > left)
+                        read = (int) left;
+                    int done = _input.read(_buffer, 0, read);
+                    if (done <= 0)
+                        throw new IMuException("StreamEOF", "binary");
+                    stream.write(_buffer, 0, done);
+                    left -= done;
+                }
+            }
+            _file = temp.getInputStream();
 
-		long size = temp.length();
-		InputStream is = temp.getInputStream();
-		putBytes(size, is);
-		is.close();
-	}
+            getNext();
+        }
+        else
+        {
+            _token = Character.toString(_next);
+            getNext();
+        }
+    }
 
-	private void
-	putBytes(long size, InputStream stream) throws Exception
-	{
-		putData('*');
-		putData(String.format("%d", size));
-		putLine();
+    private char getNext() throws Exception
+    {
+        int c = _input.readChar();
+        if (c < 0)
+            throw new IMuException("StreamEOF", "character");
+        _next = (char) c;
+        return _next;
+    }
 
-		byte[] data = new byte[_blockSize];
-		long left = size;
-		while (left > 0)
-		{
-			int need = _blockSize;
-			if ((long) need > left)
-				need = (int) left;
-			int done = stream.read(data, 0, need);
-			if (done <= 0)
-				break;
-			_output.write(data, 0, done);
-			left -= done;
-		}
-		if (left > 0)
-		{
-			/* The file did not contain enough bytes
-			** so the output is padded with nulls
-			*/
-			data = new byte[_blockSize];
-			while (left > 0)
-			{
-				int need = _blockSize;
-				if ((long) need > left)
-					need = (int) left;
-				_output.write(data, 0, need);
-				left -= need;
-			}
-		}
-	}
+    @SuppressWarnings("unchecked")
+    private void putValue(Object what, int indent) throws Exception
+    {
+        if (what == null)
+            putData("null");
+        else if (what instanceof String s)
+            putString(s);
+        else if (what instanceof Integer i)
+            putData(Integer.toString(i));
+        else if (what instanceof Long l)
+            putData(Long.toString(l));
+        else if (what instanceof Double d)
+            putData(Double.toString(d));
+        else if (what instanceof AbstractMap<?, ?> map)
+            putObject((AbstractMap<Object,Object>) map, indent);
+        else if (what instanceof Object[] array)
+            putArray(array, indent);
+        else if (what instanceof ArrayList<?> list)
+            putArray(list.toArray(), indent);
+        else if (what instanceof Boolean b)
+            putData(b ? "true" : "false");
+        else if (what instanceof File file)
+            putFile(file);
+        else if (what instanceof InputStream is)
+            putStream(is);
+        else
+            throw new IMuException("StreamType", what.getClass().getName());
+    }
 
-	private void
-	putIndent(int indent) throws Exception
-	{
-		for (int i = 0; i < indent; i++)
-			putData('\t');
-	}
+    private void putString(String what) throws Exception
+    {
+        putData('"');
+        char[] chars = what.toCharArray();
+        for (char c : chars)
+        {
+            if (c == '"' || c == '\\')
+                putData('\\');
+            putData(c);
+        }
+        putData('"');
+    }
 
-	private void
-	putLine() throws Exception
-	{
-		putData('\r');
-		putData('\n');
-	}
+    private void putObject(AbstractMap<Object,Object> what, int indent) throws Exception
+    {
+        putData('{');
+        putLine();
+        int i = 0;
+        int size = what.size();
+        for (var entry : what.entrySet())
+        {
+            putIndent(indent + 1);
+            putString(entry.getKey().toString());
+            putData(" : ");
+            putValue(entry.getValue(), indent + 1);
+            if (i < size - 1)
+                putData(',');
+            putLine();
+            i++;
+        }
+        putIndent(indent);
+        putData('}');
+    }
 
-	private void
-	putData(char chr) throws Exception
-	{
-		_output.write(chr);
-	}
+    private void putArray(Object[] what, int indent) throws Exception
+    {
+        putData('[');
+        putLine();
+        int last = what.length - 1;
+        for (int i = 0; i < what.length; i++)
+        {
+            putIndent(indent + 1);
+            putValue(what[i], indent + 1);
+            if (i < last)
+                putData(',');
+            putLine();
+        }
+        putIndent(indent);
+        putData(']');
+    }
 
-	private void
-	putData(String str) throws Exception
-	{
-		_output.write(str);
-	}
+    private void putFile(File what) throws Exception
+    {
+        long size = what.length();
+        try (InputStream is = new FileInputStream(what))
+        {
+            putBytes(size, is);
+        }
+    }
+
+    private void putStream(InputStream what) throws Exception
+    {
+        // Copy stream to temp file to get size
+        TempFile temp = new TempFile();
+        try (OutputStream os = temp.getOutputStream())
+        {
+            int done;
+            while ((done = what.read(_buffer)) > 0)
+            {
+                os.write(_buffer, 0, done);
+            }
+            os.flush();
+        }
+        try (InputStream is = temp.getInputStream())
+        {
+            putBytes(temp.length(), is);
+        }
+    }
+
+    private void putBytes(long size, InputStream stream) throws Exception
+    {
+        putData('*');
+        putData(Long.toString(size));
+        putLine();
+
+        long left = size;
+        while (left > 0)
+        {
+            int need = _buffer.length;
+            if ((long) need > left)
+                need = (int) left;
+            int done = stream.read(_buffer, 0, need);
+            if (done <= 0)
+                break;
+            _output.write(_buffer, 0, done);
+            left -= done;
+        }
+        if (left > 0)
+        {
+            // Pad remaining with zeros if file too short
+            for (; left > 0; left -= _buffer.length)
+            {
+                int need = (int) Math.min(left, _buffer.length);
+                _output.write(_buffer, 0, need);
+            }
+        }
+    }
+
+    private void putIndent(int indent) throws Exception
+    {
+        for (int i = 0; i < indent; i++)
+            putData('\t');
+    }
+
+    private void putLine() throws Exception
+    {
+        putData('\r');
+        putData('\n');
+    }
+
+    private void putData(char chr) throws Exception
+    {
+        _output.write(chr);
+    }
+
+    private void putData(String str) throws Exception
+    {
+        _output.write(str);
+    }
 }
