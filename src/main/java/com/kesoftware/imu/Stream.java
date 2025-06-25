@@ -25,12 +25,24 @@ class Stream
 
         try
         {
+        	
+        	//Disable Nagle's algorithm to prevent delays
+            _socket.setTcpNoDelay(true);
+            
+            // Optional: Increase buffer sizes for better performance
+            _socket.setReceiveBufferSize(65536); // 64KB receive buffer
+            _socket.setSendBufferSize(65536);    // 64KB send buffer
+           
+        	
             InputStream is = _socket.getInputStream();
-            BufferedInputStream bis = new BufferedInputStream(is);
+            // Optimize for 20KB records × 250 results = 5MB total
+            // Large buffer to minimize socket reads across entire result set
+            BufferedInputStream bis = new BufferedInputStream(is, 131072); // 128KB buffer
             _input = new MixedInputStream(bis);
 
             OutputStream os = _socket.getOutputStream();
-            BufferedOutputStream bos = new BufferedOutputStream(os);
+            // Smaller output buffer since queries are small
+            BufferedOutputStream bos = new BufferedOutputStream(os, 16384); // 16KB buffer
             _output = new MixedOutputStream(bos);
         }
         catch (Exception e)
@@ -86,7 +98,7 @@ class Stream
         }
     }
 
-    private static int _blockSize = 8192;
+    private static int _blockSize = 65536;
 
     private final Socket _socket;
 
