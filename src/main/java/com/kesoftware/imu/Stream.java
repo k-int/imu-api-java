@@ -22,7 +22,7 @@ class Stream
     public Stream(Socket socket) throws IMuException
     {
         _socket = socket;
-
+        
         try
         {
         	
@@ -119,9 +119,15 @@ class Stream
         {
             case "end" -> null;
             case "string" -> _string;
-            case "number" -> (_string.indexOf('.') >= 0 || _string.toLowerCase().indexOf('e') >= 0)
-	            ? Double.parseDouble(_string)
-	            : Long.parseLong(_string);
+            case "number" -> {
+                boolean isDouble = _string.contains(".") || _string.toLowerCase().contains("e");
+                
+                if (isDouble) {
+                	yield Double.parseDouble(_string);
+                } else {
+                	yield Long.parseLong(_string);
+                }
+            }
             case "true" -> true;
             case "false" -> false;
             case "null" -> null;

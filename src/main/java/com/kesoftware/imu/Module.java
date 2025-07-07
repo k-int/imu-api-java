@@ -601,10 +601,7 @@ public class Module extends Handler
 	public long
 	findKey(long key) throws IMuException
 	{
-		if(call("findKey", key) instanceof Number count)
-			return count.longValue();
-		else
-			throw new IMuException(call("findKey", key) + " cannot be converted to a Number");
+		return (Long) call("findKey", key);
 	}
 
 	/*!
@@ -622,10 +619,7 @@ public class Module extends Handler
 	public long
 	findKeys(long[] keys) throws IMuException
 	{
-		if(call("findKeys", keys) instanceof Number count)
-			return count.longValue();
-		else
-			throw new IMuException(call("findKeys", keys) + " cannot be converted to a Number");
+		return (Long) call("findKeys", keys);
 	}
 
 	/*!
@@ -643,10 +637,7 @@ public class Module extends Handler
 	public long
 	findKeys(ArrayList<Long> keys) throws IMuException
 	{
-		if(call("findKeys", keys.toArray()) instanceof Number count)
-			return count.longValue();
-		else
-			throw new IMuException(call("findKeys", keys.toArray()) + " cannot be converted to a Number");
+		return (Long) call("findKeys", keys.toArray());
 	}
 
 	/*!
@@ -664,10 +655,7 @@ public class Module extends Handler
 	public long
 	findTerms(Terms terms) throws IMuException
 	{
-		if(call("findTerms", terms.toArray()) instanceof Number count)
-			return count.longValue();
-		else
-			throw new IMuException(call("findTerms", terms.toArray()) + " cannot be converted to a Number");
+		return (Long) call("findTerms", terms.toArray());
 	}
 
 	/*!
@@ -685,10 +673,7 @@ public class Module extends Handler
 	public long
 	findWhere(String where) throws IMuException
 	{
-		if(call("findWhere", where) instanceof Number count)
-			return count.longValue();
-		else
-			throw new IMuException(call("findWhere", where) + " cannot be converted to a Number");
+		return (Long) call("findWhere", where);
 	}
 
 	public Map

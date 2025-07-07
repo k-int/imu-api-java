@@ -293,6 +293,9 @@ public class Session
 			throw new IMuException("SessionConnect", _host, _port, mesg);
 		}
 		Trace.write(2, "connected ok");
+		
+		//logging_socket = new LoggingSocket(_socket);
+        
 		_stream = new Stream(_socket);
 	}
 
@@ -442,6 +445,15 @@ public class Session
 
 		_stream.put(request);
 		Object raw = _stream.get();
+		
+		
+		//System.out.println( "=== INPUT ===" );
+		//System.out.println( logging_socket.getInputLog() );
+		//System.out.println( "=== OUTPUT ===" );
+		//System.out.println( logging_socket.getOutputLog() );
+		
+		//logging_socket.clearLogs();
+		
 		if (! (raw instanceof Map))
 		{
 			String type = raw.getClass().getName();
@@ -493,6 +505,7 @@ public class Session
 	private String _host;
 	private int _port;
 	private Socket _socket;
+	//private LoggingSocket logging_socket;
 	private Stream _stream;
 	private Boolean _suspend;
 
