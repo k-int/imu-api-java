@@ -3,3 +3,10 @@
 /.project
 /*/org.eclipse.core.resources.prefs
 /*/org.eclipse.jdt.core.prefs
+/.idea/.gitignore
+/.idea/compiler.xml
+/.idea/encodings.xml
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/.idea/remote-targets.xml
+/.idea/vcs.xml
